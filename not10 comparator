@@ -1,0 +1,46 @@
+----------------------------------------------------------------------------------
+-- Company: 
+-- Engineer: 
+-- 
+-- Create Date:    07:26:34 07/28/2021 
+-- Design Name: 
+-- Module Name:    not10Comparator - Behavioral 
+-- Project Name: 
+-- Target Devices: 
+-- Tool versions: 
+-- Description: 
+--
+-- Dependencies: 
+--
+-- Revision: 
+-- Revision 0.01 - File Created
+-- Additional Comments: 
+--
+----------------------------------------------------------------------------------
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx primitives in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity not10Comparator is
+	port(
+		A : in std_logic_vector(3 downto 0);
+		Y : out std_logic
+	);
+end not10Comparator;
+
+architecture Behavioral of not10Comparator is
+
+begin
+	
+		Y <= '1' when (A /= "1010") else
+		     '0' ;
+
+end Behavioral;
