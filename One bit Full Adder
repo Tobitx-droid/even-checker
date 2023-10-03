@@ -1,0 +1,79 @@
+----------------------------------------------------------------------------------
+-- Company: 
+-- Engineer: 
+-- 
+-- Create Date:    12:27:01 07/03/2021 
+-- Design Name: 
+-- Module Name:    fullAdderCkt - Behavioral 
+-- Project Name: 
+-- Target Devices: 
+-- Tool versions: 
+-- Description: 
+--
+-- Dependencies: 
+--
+-- Revision: 
+-- Revision 0.01 - File Created
+-- Additional Comments: 
+--
+----------------------------------------------------------------------------------
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx primitives in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity fullAdderCkt is
+	port(
+	A,B,Cin  : in std_logic;
+	Sum,Cout : out std_logic
+	);
+	
+	
+end fullAdderCkt;
+
+architecture Behavioral of fullAdderCkt is
+	component halfAdder 
+		port(
+			A,B : in std_logic;
+			S,C : out std_logic
+		);
+	end component;
+	
+	component orGate 
+		port(
+			A,B : in std_logic;
+			Y   : out std_logic
+		);
+	end component;
+
+	signal S : std_logic_vector(2 downto 0);
+
+begin
+	halfAdder1 : halfAdder port map(
+		A => A,
+		B => B,
+		S => S(0),
+		C => S(1)
+	);
+	
+	halfAdder2 : halfAdder port map(
+		A => S(0),
+		B => Cin,
+		S => Sum,
+		C => S(2)
+	);
+	
+	or_Gate : orGate port map(
+		A => S(2),
+		B => S(1),
+		Y => Cout   
+	);
+
+end Behavioral;
