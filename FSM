@@ -1,0 +1,138 @@
+----------------------------------------------------------------------------------
+-- Company: 
+-- Engineer: 
+-- 
+-- Create Date:    14:38:24 07/28/2021 
+-- Design Name: 
+-- Module Name:    CU - Behavioral 
+-- Project Name: 
+-- Target Devices: 
+-- Tool versions: 
+-- Description: 
+--
+-- Dependencies: 
+--
+-- Revision: 
+-- Revision 0.01 - File Created
+-- Additional Comments: 
+--
+----------------------------------------------------------------------------------
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx primitives in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity CU is
+	port(
+		s1Clear,s1load,s2Clear,s2Load,iload,iclear,jload,jclear,outData : out std_logic;
+		status1,status2, reset, enter, isEven, not10, clk : in std_logic;
+		muxSel : out std_logic_vector(1 downto 0)
+
+	);
+end CU;
+
+architecture Behavioral of CU is
+	type states is (ST0, ST1, ST2, ST3);
+	signal PS, NS : states;
+	
+begin
+	ns_ps : process (clk, reset)
+				begin
+					if(reset = '1') then 
+						PS <= ST0;
+					elsif(rising_edge(clk)) then
+						PS <= NS;
+					end if;
+				end process;
+				
+	ns_compute : process(ps, enter,not10, isEven)
+						begin
+							case(ps) is
+								when ST0 => 
+									if(enter = '1' and isEven = '1') then
+										NS <= ST1;
+									end if;
+									if(enter = '1' and isEven = '0') then
+										NS <= ST2;
+									end if;
+									if(enter = '0') then 
+									   NS <= ST0;
+									end if;
+									
+								when ST1 =>
+									if(enter = '1') then
+										NS <= ST1;
+									--end if;
+									elsif(not10 = '0' and enter = '0') then
+										NS <= ST3;
+									--end if;
+									elsif(not10 = '1' and enter = '0') then
+										NS <= ST0;
+									end if;
+									
+								when ST2 =>
+									if(enter = '1') then
+										NS <= ST2;
+									--end if;
+									elsif(not10 = '0' and enter = '0') then
+										NS <= ST3;
+									--end if;
+									elsif(not10 = '1' and enter = '0') then 
+										NS <= ST0;
+									end if;
+									
+								when ST3 =>
+									NS <= ST3;
+							end case;
+						end process;
+
+	create_ctrl_word : process(ps)
+								begin
+									case(ps) is
+										when ST0 =>
+											s1load <= '0';
+											s2load <= '0';
+											iload  <= '1';
+											jload  <= '1';
+											
+											muxSel <= "01";
+											outData<= '0';
+											
+										when ST1 => 
+											s1load <= '1';
+											s2load <= '0';
+											iload  <= '0';
+											jload  <= '0';
+											
+											muxSel <= "00";
+											outData<= '0';
+											
+										when ST2 =>
+										   s1load <= '0';
+											s2load <= '1';
+											iload  <= '0';
+											jload  <= '0';
+											
+											muxSel <= "01";
+											outData<= '0';
+											
+										when ST3 =>
+											s1load <= '0';
+											s2load <= '0';
+											iload  <= '0';
+											jload  <= '0';
+											
+											muxSel <= "--";
+											outData<= '1';
+									end case;
+								end process;
+					
+
+end Behavioral;
