@@ -1,0 +1,106 @@
+----------------------------------------------------------------------------------
+-- Company: 
+-- Engineer: 
+-- 
+-- Create Date:    15:53:26 07/28/2021 
+-- Design Name: 
+-- Module Name:    evenCheckerComputer - Behavioral 
+-- Project Name: 
+-- Target Devices: 
+-- Tool versions: 
+-- Description: 
+--
+-- Dependencies: 
+--
+-- Revision: 
+-- Revision 0.01 - File Created
+-- Additional Comments: 
+--
+----------------------------------------------------------------------------------
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx primitives in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity evenCheckerComputer is
+	port(
+		enterButton, clk : in std_logic;
+		inputData : in std_logic_vector(3 downto 0);
+		outputData1, outputData2 : out std_logic_vector(3 downto 0)
+	);
+end evenCheckerComputer;
+
+architecture Behavioral of evenCheckerComputer is
+	component CU 
+		port(
+			s1load,s2Load,iload,jload,outData : out std_logic;
+			--s1Clear, s2Clear, iclear, jclear: out std_logic;
+			status1,status2, reset,clk,enter : in std_logic;
+			muxSel : out std_logic_vector(1 downto 0)
+
+		);
+	end component;
+	
+	component datapath 
+		port(
+			clk,s1load,s2Load,iload,jload,outData : in std_logic;
+			--s1Clear, s2Clear, iclear, jclear: in std_logic;
+			status1,status2: out std_logic;
+			s1out, s2out : out std_logic_vector(3 downto 0);
+			muxSel : in std_logic_vector(1 downto 0);
+			reg4input : in std_logic_vector(3 downto 0)
+			
+		);
+	end component;
+
+	signal s1loadsig,s2loadsig, iloadsig, jloadsig, outDataSig, status1sig, status2sig, resetSig, enterSig : std_logic;
+	signal muxSelSig : std_logic_vector(1 downto 0);
+	
+begin
+	CtrlUnit : CU port map(
+			clk      => clk,
+			--s1Clear  => 
+			s1load   => s1loadsig,
+			--s2Clear
+			s2Load   => s2loadsig,
+			iload    => iloadsig,
+			--iclear
+			jload    => jloadsig,
+			--jclear
+			outData  => outDataSig,
+			status1  => status1sig,
+			status2  => status2sig,
+			reset    => resetSig,
+			muxSel   => muxSelSig,
+			enter    => enterSig
+
+		);
+		
+	Data_path : datapath port map(
+			clk         => clk,
+			--s1Clear     => resetSig,
+			s1load      => s1loadsig,
+			--s2Clear     => resetSig,
+			s2Load      => s2loadsig,
+			iload       => iloadsig,
+			--iclear      => resetSig,
+			jload       => jloadsig,
+			--jclear      => resetSig,
+			outData     => outDataSig,
+			status1     => status1sig,
+			status2     => status2sig,
+			s1out       => outputData1,
+			s2out       => outputData2,
+			muxSel      => muxSelSig,
+			reg4input   => inputData
+			
+		);
+
+end Behavioral;
