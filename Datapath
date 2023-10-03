@@ -1,0 +1,181 @@
+----------------------------------------------------------------------------------
+-- Company: 
+-- Engineer: 
+-- 
+-- Create Date:    07:04:52 07/28/2021 
+-- Design Name: 
+-- Module Name:    datapath - Behavioral 
+-- Project Name: 
+-- Target Devices: 
+-- Tool versions: 
+-- Description: 
+--
+-- Dependencies: 
+--
+-- Revision: 
+-- Revision 0.01 - File Created
+-- Additional Comments: 
+--
+----------------------------------------------------------------------------------
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx primitives in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity datapath is
+	port(
+		clk,s1Clear,s1load,s2Clear,s2Load,iload,iclear,jload,jclear,outData : in std_logic;
+		 --outSel : in std_logic;
+		status1,status2: out std_logic;
+		s1out, s2out : out std_logic_vector(3 downto 0);
+		muxSel : in std_logic_vector(1 downto 0);
+		reg4input : in std_logic_vector(3 downto 0)
+		
+	);
+end datapath;
+
+architecture Behavioral of datapath is
+	component not10Comparator 
+		port(
+			A : in std_logic_vector(3 downto 0);
+			Y : out std_logic
+		);
+	end component;
+	
+	component notEvenComparator 
+		port(
+			A : in std_logic_vector(3 downto 0);
+			Y : out std_logic
+		);
+	end component;
+	
+	component reg_4 
+		port(
+			clk, aload, clear : in std_logic;
+						D : in std_logic_vector(3 downto 0);
+						Q : out std_logic_vector(3 downto 0)
+		);
+	end component;
+	
+	component mux 
+		port(
+			y : out std_logic_vector(3 downto 0);
+			A,B,C,D: in std_logic_vector(3 downto 0);
+			sel: in std_logic_vector(1 downto 0)
+		);
+	end component;
+	
+	component fourBitFullAdder 
+		port(
+			C0 : in std_logic;
+		  A,B : in std_logic_vector(3 downto 0); 
+			 S : out std_logic_vector(3 downto 0);
+		C_out : out std_logic		 
+		);
+  end component;
+  
+  component outputBuffer 
+		port(
+			A : in std_logic_vector(3 downto 0);
+			Outsel : in std_logic;
+			Y : out std_logic_vector(3 downto 0)
+		);
+	end component;
+	
+	signal adderOut : std_logic_vector(3 downto 0);
+	signal reg4in :  std_logic_vector(3 downto 0);
+	signal muxOut : std_logic_vector(3 downto 0);
+	signal reg1Out : std_logic_vector(3 downto 0);
+	signal reg2Out : std_logic_vector(3 downto 0);
+	signal reg3Out : std_logic_vector(3 downto 0);
+	signal reg4Out : std_logic_vector(3 downto 0);
+	--signal reg4In : std_logic_vector(3 downto 0);
+	--signal buffer1out : std_logic_vector(3 downto 0);
+	--signal buffer2out : std_logic_vector(3 downto 0);
+
+
+	
+
+begin
+	reg4In <= reg4input;
+	
+	status1component :  not10Comparator port map(
+			A => adderOut,
+			Y => status1
+		);
+		
+	status2component : notEvenComparator port map(
+			A => reg4In, 
+			Y => status2
+		);
+	
+	reg1 : reg_4 port map(
+			clk => clk,
+			aload => s1load,
+			clear => s1clear,
+			D => adderOut,
+			Q => reg1Out
+		);
+		
+	reg2 : reg_4 port map(
+			clk => clk,
+			aload => s2load,
+			clear => s2clear,
+			D => adderOut,
+			Q => reg2Out
+			);
+		
+	reg3 : reg_4 port map(
+			clk => clk,
+			aload => iload,
+			clear => iclear,
+			D => adderOut,
+			Q => reg3out
+		);
+		
+	reg4 : reg_4 port map(
+			clk => clk,
+			aload => jload,
+			clear => jclear,
+			D => reg4In,
+			Q => reg4out
+		);
+		
+	muxComponent :  mux port map(
+			y => muxOut,
+			A => reg1Out,
+			B => reg2Out,
+			C => reg3out,
+			D => reg4out,
+			sel => muxSel
+		);
+		
+	adder : fourBitFullAdder port map(
+			C0 => '0',
+		  A => muxOut,
+		  B => "0001",
+			 S => adderOut,
+		C_out =>	 open
+		);
+		
+	outdataflow1 : outputBuffer port map(
+			A => reg2Out,
+			Outsel => outData,
+			Y => s1out
+		);
+		
+	outdataflow2 : outputBuffer port map(
+			A => reg1Out,
+			Outsel => outData,
+			Y => s2out
+		);
+		
+
+end Behavioral;
